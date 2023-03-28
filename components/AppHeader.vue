@@ -3,8 +3,8 @@
     <v-toolbar-title>Unimock</v-toolbar-title>
     <v-spacer></v-spacer>
     <v-toolbar-items class="d-flex justify-center flex-grow-1 nav-toolbar">
-      <v-btn text to="/triggers">Triggers</v-btn>
-      <v-btn text to="/templates">Templates</v-btn>
+      <v-btn text to="/triggers">Триггеры</v-btn>
+      <v-btn text to="/templates">Шаблоны</v-btn>
     </v-toolbar-items>
     <v-spacer></v-spacer>
   </v-app-bar>

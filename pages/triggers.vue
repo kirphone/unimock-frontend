@@ -39,86 +39,12 @@
                   Добавить триггер
                 </v-btn>
               </template>
-              <v-card>
-                <v-card-title>
-                  <span class="text-h5">{{ formTitle }}</span>
-                </v-card-title>
-
-                <v-card-text>
-                  <v-container>
-                    <v-row>
-                      <v-col
-                        cols="12"
-                        md="6"
-                      >
-                        <v-select
-                          v-model="editedItem.type"
-                          :items="supportedTypes"
-                          label="Тип"
-                        ></v-select>
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        md="6"
-                      >
-                        <v-checkbox
-                          v-model="editedItem.is_active"
-                          label="Активность"
-                          color="success"
-                        ></v-checkbox>
-                      </v-col>
-                    </v-row>
-                    <v-row>
-                      <v-col
-                        cols="12"
-                        md="6"
-                      >
-                        <v-text-field
-                          v-model="editedItem.expression"
-                          label="Значение"
-                        ></v-text-field>
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        md="6"
-                      >
-                        <v-text-field
-                          v-model="editedItem.description"
-                          label="Описание"
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-                    <v-row>
-                      <v-col
-                        cols="12"
-                      >
-                        <v-text-field
-                          v-model="editedItem.headers"
-                          label="Заголовки"
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-card-text>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="close"
-                  >
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="save"
-                  >
-                    Save
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
+              <edit-trigger
+                :edited-item="editedItem"
+                :form-title="formTitle"
+                @save="save"
+                @close="close"
+              />
             </v-dialog>
             <v-dialog v-model="dialogDelete" max-width="500px">
               <v-card>
@@ -131,19 +57,32 @@
                 </v-card-actions>
               </v-card>
             </v-dialog>
+            <v-dialog
+              v-model="dialogScenario"
+              fullscreen
+              hide-overlay
+              transition="dialog-bottom-transition"
+            >
+
+            </v-dialog>
           </v-toolbar>
         </template>
         <template v-slot:item.actions="{ item }">
           <v-icon
-            small
             class="mr-2"
-            @click="editItem(item)"
+            @click="openScenarioDialog(item)"
+          >
+            mdi-playlist-edit
+          </v-icon>
+          <v-icon
+            class="mr-2"
+            @click="openEditDialog(item)"
           >
             mdi-pencil
           </v-icon>
           <v-icon
-            small
-            @click="deleteItem(item)"
+            class="mr-2"
+            @click="openDeleteDialog(item)"
           >
             mdi-delete
           </v-icon>
@@ -201,6 +140,7 @@ export default {
         is_active: true
       },
       dialogDelete: false,
+      dialogScenario: false,
       dialog: false,
       supportedTypes: ["json", "regex"]
     }
@@ -272,33 +212,37 @@ export default {
       trigger.is_active = newValue
       this.updateTrigger(trigger).then(() => this.$set(trigger, 'is_active', newValue))
     },
-    save() {
-      this.editedItem.headers = this.convertStringToHeaders(this.editedItem.headers)
+    save(item) {
+      item.headers = this.convertStringToHeaders(item.headers)
       if (this.editedIndex > -1) {
-        this.updateTrigger(this.editedItem)
+        this.updateTrigger(item)
           .then(() => {
-            Object.assign(this.triggers[this.editedIndex], this.editedItem)
+            Object.assign(this.triggers[this.editedIndex], item)
             this.close()
           })
       } else {
-        this.saveTrigger(this.editedItem)
+        this.saveTrigger(item)
           .then(response => {
             this.triggers.push(response)
             this.close()
           })
       }
     },
-    editItem (item) {
+    openEditDialog (item) {
       this.editedIndex = this.triggers.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.editedItem.headers = this.convertHeadersToString(item.headers)
 
       this.dialog = true
     },
-    deleteItem (item) {
+    openDeleteDialog (item) {
       this.editedIndex = this.triggers.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
+    },
+    openScenarioDialog(item) {
+      this.editedIndex = this.triggers.indexOf(item)
+      this.dialogScenario = true
     },
     close() {
       this.dialog = false
@@ -311,6 +255,12 @@ export default {
       this.dialogDelete = false
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      })
+    },
+    closeScenarioDialog() {
+      this.dialogScenario = false
+      this.$nextTick(() => {
         this.editedIndex = -1
       })
     },
@@ -333,6 +283,9 @@ export default {
     dialogDelete(val) {
       val || this.closeDelete()
     },
+    dialogScenario(val) {
+      val || this.closeScenarioDialog()
+    }
   },
   mounted() {
     this.fetchTriggers()

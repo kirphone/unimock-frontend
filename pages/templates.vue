@@ -26,7 +26,9 @@
           >
             <v-dialog
               v-model="dialog"
-              max-width="500px"
+              fullscreen
+              hide-overlay
+              transition="dialog-bottom-transition"
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
@@ -39,54 +41,12 @@
                   Добавить шаблон
                 </v-btn>
               </template>
-              <v-card>
-                <v-card-title>
-                  <span class="text-h5">{{ formTitle }}</span>
-                </v-card-title>
-
-                <v-card-text>
-                  <v-container>
-                    <v-row>
-                      <v-col
-                        cols="12"
-                      >
-                        <v-text-field
-                          v-model="editedItem.name"
-                          label="Имя"
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-                    <v-row>
-                      <v-col
-                        cols="12"
-                      >
-                        <v-text-field
-                          v-model="editedItem.body"
-                          label="Тело"
-                        ></v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-card-text>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="close"
-                  >
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    color="blue darken-1"
-                    text
-                    @click="save"
-                  >
-                    Save
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
+              <edit-template
+                :edited-item="editedItem"
+                :form-title="formTitle"
+                @save="save"
+                @close="close"
+              />
             </v-dialog>
             <v-dialog v-model="dialogDelete" max-width="500px">
               <v-card>
@@ -103,15 +63,14 @@
         </template>
         <template v-slot:item.actions="{ item }">
           <v-icon
-            small
             class="mr-2"
-            @click="editItem(item)"
+            @click="openEditDialog(item)"
           >
             mdi-pencil
           </v-icon>
           <v-icon
-            small
-            @click="deleteItem(item)"
+            class="mr-2"
+            @click="openDeleteDialog(item)"
           >
             mdi-delete
           </v-icon>
@@ -157,11 +116,22 @@ export default {
     async fetchTemplates() {
       this.loading = true
       this.$axios
-        .$get(this.$config.unimockURL + "/templates")
+        .$get(this.$config.unimockURL + "/templates?includeBody=false")
         .then((response) => {
           console.log("Get templates")
           this.templates = response
           this.loading = false
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    async fetchTemplateById(templateId) {
+      return await this.$axios
+        .$get(`${this.$config.unimockURL}/templates/${templateId}`)
+        .then((response) => {
+          console.log(`Get template by id = ${templateId}`)
+          return response
         })
         .catch((error) => {
           console.log(error);
@@ -197,27 +167,30 @@ export default {
           console.log(error);
         });
     },
-    save() {
+    save(item) {
       if (this.editedIndex > -1) {
-        this.updateTemplate(this.editedItem)
+        this.updateTemplate(item)
           .then(() => {
-            Object.assign(this.templates[this.editedIndex], this.editedItem)
+            const { body, ...itemWithoutBody } = item;
+            Object.assign(this.templates[this.editedIndex], itemWithoutBody)
             this.close()
           })
       } else {
-        this.saveTemplate(this.editedItem)
+        this.saveTemplate(item)
           .then(response => {
             this.templates.push(response)
             this.close()
           })
       }
     },
-    editItem(item) {
+    openEditDialog(item) {
       this.editedIndex = this.templates.indexOf(item)
-      this.editedItem = Object.assign({}, item)
-      this.dialog = true
+      this.fetchTemplateById(item.id).then((template) => {
+        this.editedItem = Object.assign({}, template)
+        this.dialog = true
+      })
     },
-    deleteItem(item) {
+    openDeleteDialog(item) {
       this.editedIndex = this.templates.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
