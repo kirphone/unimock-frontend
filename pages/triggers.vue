@@ -49,18 +49,29 @@
                     <v-row>
                       <v-col
                         cols="12"
-                        sm="6"
-                        md="4"
+                        md="6"
                       >
-                        <v-text-field
+                        <v-select
                           v-model="editedItem.type"
+                          :items="supportedTypes"
                           label="Тип"
-                        ></v-text-field>
+                        ></v-select>
                       </v-col>
                       <v-col
                         cols="12"
-                        sm="6"
-                        md="4"
+                        md="6"
+                      >
+                        <v-checkbox
+                          v-model="editedItem.is_active"
+                          label="Активность"
+                          color="success"
+                        ></v-checkbox>
+                      </v-col>
+                    </v-row>
+                    <v-row>
+                      <v-col
+                        cols="12"
+                        md="6"
                       >
                         <v-text-field
                           v-model="editedItem.expression"
@@ -69,34 +80,22 @@
                       </v-col>
                       <v-col
                         cols="12"
-                        sm="6"
-                        md="4"
+                        md="6"
                       >
                         <v-text-field
                           v-model="editedItem.description"
                           label="Описание"
                         ></v-text-field>
                       </v-col>
+                    </v-row>
+                    <v-row>
                       <v-col
                         cols="12"
-                        sm="6"
-                        md="4"
                       >
                         <v-text-field
                           v-model="editedItem.headers"
                           label="Заголовки"
                         ></v-text-field>
-                      </v-col>
-                      <v-col
-                        cols="12"
-                        sm="6"
-                        md="4"
-                      >
-                        <v-checkbox
-                          v-model="editedItem.is_active"
-                          label="Активность"
-                          color="success"
-                        ></v-checkbox>
                       </v-col>
                     </v-row>
                   </v-container>
@@ -181,7 +180,7 @@ export default {
         {text: 'Описание', value: 'description'},
         {text: 'Заголовки', value: 'headers'},
         {text: 'Активность', value: 'is_active'},
-        { text: 'Actions', value: 'actions', sortable: false },
+        {text: 'Actions', value: 'actions', sortable: false },
       ],
       triggers: [],
       editedIndex: -1,
@@ -203,6 +202,7 @@ export default {
       },
       dialogDelete: false,
       dialog: false,
+      supportedTypes: ["json", "regex"]
     }
   },
   methods: {

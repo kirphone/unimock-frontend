@@ -49,22 +49,20 @@
                     <v-row>
                       <v-col
                         cols="12"
-                        sm="6"
-                        md="4"
                       >
                         <v-text-field
                           v-model="editedItem.name"
-                          label="Тип"
+                          label="Имя"
                         ></v-text-field>
                       </v-col>
+                    </v-row>
+                    <v-row>
                       <v-col
                         cols="12"
-                        sm="6"
-                        md="4"
                       >
                         <v-text-field
                           v-model="editedItem.body"
-                          label="Значение"
+                          label="Тело"
                         ></v-text-field>
                       </v-col>
                     </v-row>
@@ -103,6 +101,21 @@
             </v-dialog>
           </v-toolbar>
         </template>
+        <template v-slot:item.actions="{ item }">
+          <v-icon
+            small
+            class="mr-2"
+            @click="editItem(item)"
+          >
+            mdi-pencil
+          </v-icon>
+          <v-icon
+            small
+            @click="deleteItem(item)"
+          >
+            mdi-delete
+          </v-icon>
+        </template>
       </v-data-table>
     </v-card>
   </div>
@@ -122,6 +135,7 @@ export default {
           value: 'id',
         },
         {text: 'Имя', value: 'name'},
+        {text: 'Actions', value: 'actions', sortable: false},
       ],
       templates: [],
       dialogDelete: false,
@@ -198,12 +212,12 @@ export default {
           })
       }
     },
-    editItem (item) {
+    editItem(item) {
       this.editedIndex = this.templates.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialog = true
     },
-    deleteItem (item) {
+    deleteItem(item) {
       this.editedIndex = this.templates.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
@@ -222,7 +236,7 @@ export default {
         this.editedIndex = -1
       })
     },
-    deleteItemConfirm () {
+    deleteItemConfirm() {
       this.deleteTemplate(this.editedItem.id).then(() => {
         this.templates.splice(this.editedIndex, 1)
         this.closeDelete()
