@@ -192,7 +192,6 @@ export default {
     },
     openDeleteDialog(item) {
       this.editedIndex = this.templates.indexOf(item)
-      this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
     },
     close() {
@@ -205,12 +204,11 @@ export default {
     closeDelete() {
       this.dialogDelete = false
       this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
     },
     deleteItemConfirm() {
-      this.deleteTemplate(this.editedItem.id).then(() => {
+      this.deleteTemplate(this.templates[this.editedIndex].id).then(() => {
         this.templates.splice(this.editedIndex, 1)
         this.closeDelete()
       })

@@ -28,6 +28,7 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    '~/plugins/vuedraggable.js'
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -73,7 +74,9 @@ export default {
       }
     }
   },
-
+  router: {
+    middleware: ['default-page']
+  },
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
   }
