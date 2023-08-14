@@ -15,6 +15,7 @@
               v-model="item.type"
               :items="supportedTypes"
               label="Тип"
+              :menu-props="{ offsetY: true }"
             ></v-select>
           </v-col>
           <v-col
@@ -91,7 +92,7 @@ export default {
   emits: ['save', 'close'],
   data() {
     return {
-      supportedTypes: ["json", "regex"],
+      supportedTypes: ["gson", "jsonpath", "regex"],
       item: this.editedItem
     }
   },

@@ -145,8 +145,7 @@ export default {
       },
       dialogDelete: false,
       dialogScenario: false,
-      dialog: false,
-      supportedTypes: ["json", "regex"]
+      dialog: false
     }
   },
   methods: {
