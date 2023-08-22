@@ -92,7 +92,7 @@ export default {
   emits: ['save', 'close'],
   data() {
     return {
-      supportedTypes: ["gson", "jsonpath", "regex"],
+      supportedTypes: ["gson", "jsonpath", "regex", "xpath"],
       item: this.editedItem
     }
   },
